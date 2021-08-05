@@ -157,3 +157,9 @@ cd ~/colcon_ws && colcon build
 ros2 run open_manipulator_x_tutorial hello_ros_sub
 ```
 [구동화면 캡쳐하기]
+
+## __6. init_and_home__
+본 노드는 Open Manipulator X를 초기위치, Home 위치로 이동하는 노드를 구현해본다.
+
+### 6.1. 노드 동작 Process
+### 6.2. Sourcecode 설명
