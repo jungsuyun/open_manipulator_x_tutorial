@@ -1,13 +1,14 @@
 # open_manipulator_x_tutorial
 본 리포지토리는 Open Manipulator X의 ROS2 연습용 리포지토리입니다.
+![openManipulator](img/OpenManipulator_Introduction.jpg)
 
-## 개발환경
+## __1. 개발환경__
 * [Ubuntu 18.04 LTS](https://ubuntu.com/)
 * [ROS2 Dashing](https://docs.ros.org/en/dashing/index.html)
 * [Robotis Open Manipulator X](https://emanual.robotis.com/docs/en/platform/openmanipulator_x/overview/#opensoftware)
 * Python 3.6
 
-## 노드 소개
+## __2. 노드 소개__
 * __hello_ros_pub__ : Python 기반의 ROS2 Topic Publishing 예제
 * __hello_ros_sub__ : Python 기반의 ROS2 Topic Subscribing 예제
 * __init_and_home__ : 초기 위치, home 위치로 이동하기
@@ -17,3 +18,31 @@
 * __joint_teleoperation__ : Joint 기반의 이동 명령 내리기
 * __kinematics_teleoperation__ : X/Y/Z 좌표값 기반의 이동 명령 내리기
 
+## __3. 개발환경 세팅하기__
+### __3.1. Open Manipulator 패키지 설치하기__
+가장 먼저 ros dashing의 python 패키지와 rqt 관련 패키지를 설치한다.
+```bash
+sudo apt install ros-dashing-python* ros-dashing-rqt*
+```
+
+다음으로 open mainpulator와 관련된 의존성 패키지들을 다운로드 및 빌드를 수행한다.
+```bash
+cd ~/colcon_ws/src
+git clone -b ros2 https://github.com/ROBOTIS-GIT/DynamixelSDK.git  
+git clone -b ros2 https://github.com/ROBOTIS-GIT/dynamixel-workbench.git  
+git clone -b ros2 https://github.com/ROBOTIS-GIT/open_manipulator.git  
+git clone -b ros2 https://github.com/ROBOTIS-GIT/open_manipulator_msgs.git  
+git clone -b ros2 https://github.com/ROBOTIS-GIT/open_manipulator_dependencies.git  
+git clone -b ros2 https://github.com/ROBOTIS-GIT/robotis_manipulator.git  
+cd ~/colcon_ws && colcon build --symlink-install
+```
+
+### __3.2. USB Latency Timer Setting__
+Ubuntu 환경에서 USB의 지연시간은 기본적으로 16ms로 설정되어 있다. 하지만 Open Manipulator X에 설치되어 있는 DYNAMIXEL과 PC의 통신 실시간성을 보장하기 위해 지연시간을 1ms로 설정하는 노드를 실행한다.
+```bash
+ros2 run open_manipulator_x_controller create_udev_rules
+```
+
+### __3.3. Hardware 구성하기__
+U2D2와 PC를 Micro USB로 연결한 후 U2D2의 TTL포트와 U2D2 Power Hub Board의 TTL 파트를 연결한다. 그리고 나머지 포트와 Open Manipulator를 연결한다.
+![U2D2 연결법](img/OpenManipulator_u2d2_setup2.png)
