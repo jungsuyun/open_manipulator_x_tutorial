@@ -11,7 +11,7 @@
 ## __2. 노드 소개__
 * [__hello_ros_pub__](https://github.com/jungsuyun/open_manipulator_x_tutorial#4-hello_ros_pub) : Python 기반의 ROS2 Topic Publishing 예제
 * [__hello_ros_sub__](https://github.com/jungsuyun/open_manipulator_x_tutorial#5-hello_ros_sub) : Python 기반의 ROS2 Topic Subscribing 예제
-* __init_and_home__ : 초기 위치, home 위치로 이동하기
+* [__init_and_home__](https://github.com/jungsuyun/open_manipulator_x_tutorial#6-init_and_home) : 초기 위치, home 위치로 이동하기
 * __gripper_control__ : Gripper 열고 닫기
 * __jointstate_subscriber__ : 각 Joint별 각속도 값 읽어오기
 * __kinematics_subscriber__ : Gripper를 기준으로 현재 위치를 X/Y/Z축 좌표값으로 읽어오기
@@ -163,3 +163,106 @@ ros2 run open_manipulator_x_tutorial hello_ros_sub
 
 ### 6.1. 노드 동작 Process
 ### 6.2. Sourcecode 설명
+가장 먼저 의존성 패키지들을 import해준다. 가장 먼저 사용자의 key값을 받기 위한 `getkey`모듈을 import하고 ROS2 기반의 python 프로그래밍을 위해선 `rclpy` 패키지를 import 해주어야 한다. 마지막으로 Joint별 명령을 제어하기 위해 `open_manipulator_msgs/srv/SetJointPosition` 모듈을 import 해주도록 한다.
+
+```python
+import os
+from getkey import getkey
+
+import rclpy
+from rclpy.node import Node
+
+from open_manipulator_msgs.srv import SetJointPosition
+```
+
+다음으로 전역변수 선언이다. Open Manipulator X는 4개의 구동축으로 구성되어 있기 때문에 `NUM_OF_JOINT`라는 변수에 4의 값을 넣어주고, Home 위치 선언을 위해 `PI`변수를 선언해주었다.
+```python
+PI = 3.14159265359
+NUM_OF_JOINT = 4
+```
+
+다음은 Class 선언 부분이다. `InitAndHome` Class는 `Node` Class를 상속받았다. `super().__init__()`함수를 통해 Node명을 선언해준다. `client` 변수는 `goal_joint_space_path` Service와 연동되는 client이고 해당 client는 `request`를 통해 값을 보내고 받아오게 된다.
+
+해당 노드는 0.5초 간격으로 값을 보내는 역할을 수행하게 할 것이므로 `create_timer`함수를 통해 callback함수단에서 동작이 이루어질 수 있도록 한다.
+
+```python
+class InitAndHome(Node):
+    def __init__(self):
+        self.future = None
+        super().__init__('init_and_home_node')
+        self.path_time = 2.0
+        self.client = self.create_client(SetJointPosition, 'goal_joint_space_path')
+
+        self.request = SetJointPosition.Request()
+
+        timer_period = 0.5
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+```
+
+`timer_callback`함수에서는 `getkey()`함수를 통해 값을 입력받고 입력받은 값을 `send_command`함수로 보내게 된다.
+```python
+def timer_callback(self):
+    command = getkey()
+    self.send_command(str(command))
+```
+
+`send_command`함수는 입력된 값에 따라 동작이 이루어지도록 한다. 초기위치와 home 위치로 이동하기 위해서는 각 `Joint`를 제어해주어야 한다. Joint를 제어해주기 위해서는 각 Joint의 이름과 joint의 angle 값이 필요하다.
+
+이를 위해 `joint_name`이라는 list와 `joint_angle`이라는 list를 선언해주고 각 list에 맞는 값을 입력해준다. 입력이 완료되면 `set_joint_space_path`라는 함수로 인자를 전달하여 `service call`이 이루어지도록 한다.
+```python
+def send_command(self, command: str):
+    if command is '1':
+        print("input : 1 \t init pose")
+        joint_name = []
+        joint_angle = []
+
+        joint_name.append('joint1')
+        joint_name.append('joint2')
+        joint_name.append('joint3')
+        joint_name.append('joint4')
+
+        joint_angle.append(0.0)
+        joint_angle.append(0.0)
+        joint_angle.append(0.0)
+        joint_angle.append(0.0)
+        self.set_joint_space_path(joint_name, joint_angle)
+    elif command is '2':
+        print("input : 2 \t home pose")
+        joint_name = []
+        joint_angle = []
+
+        joint_name.append('joint1')
+        joint_name.append('joint2')
+        joint_name.append('joint3')
+        joint_name.append('joint4')
+
+        joint_angle.append(0.0)
+        joint_angle.append(-PI/3)
+        joint_angle.append(PI/9)
+        joint_angle.append(PI*2/9)
+
+        self.set_joint_space_path(joint_name, joint_angle)
+    else:
+        print("input : %s" % command)
+```
+
+`set_joint_space_path`에서는 service 타입에 맞는 값을 입력해주도록 한다. `request`의 joint_name에는 인자로 전달받은 joint_name을, 축의 각 값은 joint_position에 입력해주도록 한다. `path_time`은 해당 동작을 몇초안에 수행해야 하는지를 표기한다. 여기에선 2.0초로 `__init__`함수에서 선언해주었다.
+
+request에 인자를 정상적으로 입력하였다면 `client.call_async()` 함수를 통해 request 변수를 call 해주도록 한다.
+```python
+def set_joint_space_path(self, joint_name: list, joint_angle: list):
+    self.request.joint_position.joint_name = joint_name
+    self.request.joint_position.position = joint_angle
+    self.request.path_time = self.path_time
+
+    future = self.client.call_async(self.request)
+```
+
+### __6.3. 구동하기__
+```bash
+cd ~/colcon_ws && colcon build
+ros2 open_manipulator_x_tutorial init_and_home
+```
+[동작 terminal]
+[구동 영상짤]
+

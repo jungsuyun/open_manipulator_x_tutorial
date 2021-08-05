@@ -6,9 +6,7 @@ from getkey import getkey
 import rclpy
 from rclpy.node import Node
 
-from sensor_msgs.msg import JointState
 from open_manipulator_msgs.srv import SetJointPosition
-from open_manipulator_msgs.srv import SetKinematicsPose
 
 PI = 3.14159265359
 NUM_OF_JOINT = 4
