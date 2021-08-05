@@ -10,7 +10,7 @@
 
 ## __2. 노드 소개__
 * [__hello_ros_pub__](https://github.com/jungsuyun/open_manipulator_x_tutorial#4-hello_ros_pub) : Python 기반의 ROS2 Topic Publishing 예제
-* __hello_ros_sub__ : Python 기반의 ROS2 Topic Subscribing 예제
+* [__hello_ros_sub__](https://github.com/jungsuyun/open_manipulator_x_tutorial#5-hello_ros_sub) : Python 기반의 ROS2 Topic Subscribing 예제
 * __init_and_home__ : 초기 위치, home 위치로 이동하기
 * __gripper_control__ : Gripper 열고 닫기
 * __jointstate_subscriber__ : 각 Joint별 각속도 값 읽어오기
@@ -109,4 +109,51 @@ ros2 run open_manipulator_x_tutorial hello_ros_pub
 [구동화면 캡쳐하기]
 
 ## __5. hello_ros_sub__
+본 노드는 앞의 4.에서 구현한 hello_ros_pub에서 발행되는 topic값을 subscribe하여 값을 terminal에 출력해보는 것이다.
 
+### 5.1. 노드 동작 Process
+### 5.2. Sourcecode 설명
+가장 먼저 의존성 패키지들을 import 해준다. ROS2 기반의 python 프로그래밍을 위해선 `rclpy` 패키지를 import 해주어야 한다. 또한 `String` 타입의 메시지를 발행하기 위해 `std_msgs/msg/String` 타입을 import 해준다.
+
+```python
+#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+
+from std_msgs.msg import String
+```
+
+다음으로 클래스 선언 부분이다. 우리는 SimpleSubscriber라는 클래스를 새로 생성할 것이고 해당 클래스는 `rclpy.node`를 상속받게된다. 가장 먼저 부모 클래스의 `__init__` 함수를 통해 해당 Node 명을 선언해주고 `talker`라는 topic을 Subscribe할 `subscription`을 선언해준다.
+```python
+class SimpleSubscriber(Node):
+    def __init__(self):
+        super().__init__('hello_ros_subscriber')
+        self.subscription = self.create_subscription(String, 'talker', self.talker_callback, 10)
+        self.subscription
+```
+
+`talker_callback` 함수는 talker topic에서 값이 들어왔을 경우 수행되는 함수 부분으로 `get_logger().info()` 함수를 통해 terminal에 출력을 수행할 것이다.
+```python
+def talker_callback(self, msg: String):
+    self.get_logger().info('I heard : %s' % msg.data)
+```
+
+다음으로 메인에서는 `rclpy.init` 을 통해 노드 연결을 준비하고 `rclpy.spin()` 함수를 통해 무한루프 형태로 노드가 동작하도록 구현하였다.
+```python
+def main(args=None):
+    rclpy.init(args=args)
+
+    simple_subscriber = SimpleSubscriber()
+    rclpy.spin(simple_subscriber)
+
+    simple_subscriber.destroy_node()
+    rclpy.shutdown()
+```
+
+### __5.3. 구동하기__
+```bash
+cd ~/colcon_ws && colcon build
+ros2 run open_manipulator_x_tutorial hello_ros_sub
+```
+[구동화면 캡쳐하기]
