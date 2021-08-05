@@ -270,4 +270,14 @@ ros2 open_manipulator_x_tutorial init_and_home
 본 노드는 `g`키와 `f`키를 입력받아 Open Manipulator X의 Gripper를 열고 닫는 명령을 제어하는 노드이다.
 ### __7.1. 노드 동작 Process__
 ### __7.2. Sourcecode 설명__
+가장 먼저 의존성 패키지들을 import해준다. 가장 먼저 사용자의 key값을 받기 위한 `getkey`모듈을 import하고 ROS2 기반의 python 프로그래밍을 위해선 `rclpy` 패키지를 import 해주어야 한다. 마지막으로 Joint별 명령을 제어하기 위해 `open_manipulator_msgs/srv/SetJointPosition` 모듈을 import 해주도록 한다.
 
+```python
+import os
+from getkey import getkey
+
+import rclpy
+from rclpy.node import Node
+
+from open_manipulator_msgs.srv import SetJointPosition
+```
