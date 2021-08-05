@@ -46,3 +46,11 @@ ros2 run open_manipulator_x_controller create_udev_rules
 ### __3.3. Hardware 구성하기__
 U2D2와 PC를 Micro USB로 연결한 후 U2D2의 TTL포트와 U2D2 Power Hub Board의 TTL 파트를 연결한다. 그리고 나머지 포트와 Open Manipulator를 연결한다.
 ![U2D2 연결법](img/OpenManipulator_u2d2_setup2.png)
+
+### __3.4. Python 의존성 패키지 설치하기__
+다양한 key값을 받아올 수 있도록 우리는 getkey()라는 함수가 필요하다. 이는 Windows의 C++ 코드에는 구현되어 있지만, Ubuntu Linux에는 구현되어 있지 않다. 이를 위해 우리는 getkey()와 관련된 python 패키지를 설치해준다.
+```bash
+pip3 install getkey
+```
+
+## __4. hello_ros_pub__
