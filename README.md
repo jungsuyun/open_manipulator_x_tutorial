@@ -266,3 +266,8 @@ ros2 open_manipulator_x_tutorial init_and_home
 [동작 terminal]
 [구동 영상짤]
 
+## __7. gripper_control__
+본 노드는 `g`키와 `f`키를 입력받아 Open Manipulator X의 Gripper를 열고 닫는 명령을 제어하는 노드이다.
+### __7.1. 노드 동작 Process__
+### __7.2. Sourcecode 설명__
+
