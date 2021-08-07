@@ -266,12 +266,12 @@ ros2 open_manipulator_x_tutorial init_and_home
 [동작 terminal]
 [구동 영상짤]
 
-## __7. gripper_control__
-본 노드는 `g`키와 `f`키를 입력받아 Open Manipulator X의 Gripper를 열고 닫는 명령을 제어하는 노드이다.
+## 7. gripper_control
+본 노드는 `g`키와 `f` 키를 이용하여 gripper를 열고 닫는 노드이다.
+
 ### __7.1. 노드 동작 Process__
 ### __7.2. Sourcecode 설명__
 가장 먼저 의존성 패키지들을 import해준다. 가장 먼저 사용자의 key값을 받기 위한 `getkey`모듈을 import하고 ROS2 기반의 python 프로그래밍을 위해선 `rclpy` 패키지를 import 해주어야 한다. 마지막으로 Joint별 명령을 제어하기 위해 `open_manipulator_msgs/srv/SetJointPosition` 모듈을 import 해주도록 한다.
-
 ```python
 import os
 from getkey import getkey
@@ -281,3 +281,69 @@ from rclpy.node import Node
 
 from open_manipulator_msgs.srv import SetJointPosition
 ```
+
+다음은 class 선언 부분이다. `super().__init__` 함수를 이용하여 cli에서 확인할 node명을 선언해주었다. gripper를 제어하기 위한 service명은 `goal_tool_control`이고 `SetJointPosition`의 메시지 타입을 사용하게 된다. 이를 제어하기 위한 Client와 request를 선언해주었다.
+0.1초 간격으로 명령을 확인하고 제어하기 위해 timer 함수를 선언하였다. 이 timer는 `timer_callback`함수를 기반으로 제어를 수행하게 된다.
+
+```python
+class GripperControl(Node):
+    def __init__(self):
+        self.future = None
+        super().__init__("gripper_control_node")
+        self.path_time = 2.0
+        self.client = self.create_client(SetJointPosition, 'goal_tool_control')
+
+        self.request = SetJointPosition.Request()
+
+        timer_period = 0.5
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+```
+`timer_callback()`함수에서는 `getkey()`함수를 통해 명령어를 입력받고 이를 `send_command`함수로 보내주는 역할을 수행한다.
+```python
+def timer_callback(self):
+    command = getkey()
+    self.send_command(str(command))
+```
+
+`send_command()`함수는 사용자의 입력값이 `g`인지 `f`인지 판단을 하게 된다. 값의 입력에 따라 `joint_angle` list를 선언하고 `0.01` 또는 `-0.01`값을 주어 제어하게 된다.
+```python
+def send_command(self, command: str):
+    if command is 'g' or command is 'G':
+        print("input : g \topen gripper")
+        joint_angle = []
+        joint_angle.append(0.01)
+
+        self.set_tool_control(joint_angle)
+
+    elif command is 'f' or command is 'F':
+        print("input : f \tclose gripper")
+        joint_angle = []
+        joint_angle.append(-0.01)
+
+        self.set_tool_control(joint_angle)
+```
+
+`set_tool_control()`함수에서는 인자로 `joint_angle` list를 입력받게 되고, `gripper`라는 joint_name에 값을 전달하는 client request를 실행한다.
+```python
+def set_tool_control(self, joint_angle: list):
+    print(joint_angle)
+    self.request.joint_position.joint_name.append('gripper')
+    self.request.joint_position.position = joint_angle
+
+    future = self.client.call_async(self.request)
+    while future.done() is not None:
+        try:
+            response = future.result()
+            print(response)
+            break
+        except Exception as e:
+            print("%s" % (e, ))
+```
+
+### 7.3. 구동하기
+```bash
+cd ~/colcon_ws && colcon build
+ros2 open_manipulator_x_tutorial gripper_control
+```
+[동작 terminal]
+[구동 영상짤]
