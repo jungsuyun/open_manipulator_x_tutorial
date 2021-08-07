@@ -12,7 +12,7 @@
 * [__hello_ros_pub__](https://github.com/jungsuyun/open_manipulator_x_tutorial#4-hello_ros_pub) : Python 기반의 ROS2 Topic Publishing 예제
 * [__hello_ros_sub__](https://github.com/jungsuyun/open_manipulator_x_tutorial#5-hello_ros_sub) : Python 기반의 ROS2 Topic Subscribing 예제
 * [__init_and_home__](https://github.com/jungsuyun/open_manipulator_x_tutorial#6-init_and_home) : 초기 위치, home 위치로 이동하기
-* __gripper_control__ : Gripper 열고 닫기
+* [__gripper_control__](https://github.com/jungsuyun/open_manipulator_x_tutorial#7-gripper_control) : Gripper 열고 닫기
 * __jointstate_subscriber__ : 각 Joint별 각속도 값 읽어오기
 * __kinematics_subscriber__ : Gripper를 기준으로 현재 위치를 X/Y/Z축 좌표값으로 읽어오기
 * __joint_teleoperation__ : Joint 기반의 이동 명령 내리기
@@ -347,3 +347,5 @@ ros2 open_manipulator_x_tutorial gripper_control
 ```
 [동작 terminal]
 [구동 영상짤]
+
+__8. joint_teleoperation__
