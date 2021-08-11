@@ -1,0 +1,15 @@
+package.xml
+setup.cfg
+setup.py
+open_manipulator_pick_and_place/__init__.py
+open_manipulator_pick_and_place.egg-info/PKG-INFO
+open_manipulator_pick_and_place.egg-info/SOURCES.txt
+open_manipulator_pick_and_place.egg-info/dependency_links.txt
+open_manipulator_pick_and_place.egg-info/entry_points.txt
+open_manipulator_pick_and_place.egg-info/requires.txt
+open_manipulator_pick_and_place.egg-info/top_level.txt
+open_manipulator_pick_and_place.egg-info/zip-safe
+resource/open_manipulator_pick_and_place
+test/test_copyright.py
+test/test_flake8.py
+test/test_pep257.py
